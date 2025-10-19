@@ -104,3 +104,7 @@ export default App;
 ## Run
 
 `npm start` - opens http://localhost:3000
+
+## Screenshot
+
+![RNA Forna Demo](./screenshot/rna-demo.png)
