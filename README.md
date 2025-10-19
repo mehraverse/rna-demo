@@ -32,26 +32,40 @@ declare global {
   }
 }
 
-const RNAViewer = ({ sequence, structure }) => {
-  const containerRef = useRef(null);
+type RNAViewerProps = {
+  sequence: string;
+  structure: string;
+};
+
+const RNAViewer = ({ sequence, structure }: RNAViewerProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (containerRef.current && window.fornac) {
-      const fornaContainer = new window.fornac.FornaContainer(
-        containerRef.current,
-        {
-          animation: true,
-          allowPanningAndZooming: true,
-          allowEditing: true,
-        }
-      );
+      try {
+        const fornaContainer = new window.fornac.FornaContainer(
+          containerRef.current,
+          {
+            animation: true,
+            allowPanningAndZooming: false,
+            allowEditing: true,
+          }
+        );
 
-      fornaContainer.addRNA(structure, { sequence: sequence });
+        fornaContainer.addRNA(structure, {
+          sequence: sequence,
+          name: "RNA Molecule",
+        });
+      } catch (error) {
+        console.error("Fornac initialization error:", error);
+      }
     }
   }, [sequence, structure]);
 
   return <div ref={containerRef} style={{ width: "700px", height: "200px" }} />;
 };
+
+export default RNAViewer;
 ```
 
 ## Use in App
@@ -59,6 +73,8 @@ const RNAViewer = ({ sequence, structure }) => {
 Update `src/App.tsx`:
 
 ```tsx
+import React from "react";
+import "./App.css";
 import RNAViewer from "./components/RNAViewer";
 
 function App() {
@@ -69,11 +85,13 @@ function App() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>RNA Demo</h1>
+      <h1>RNA Forna Demo</h1>
       <RNAViewer sequence={sequence} structure={structure} />
     </div>
   );
 }
+
+export default App;
 ```
 
 ## Common Issues
