@@ -108,3 +108,7 @@ export default App;
 ## Screenshot
 
 ![RNA Forna Demo](./screenshot/rna-demo.png)
+
+## TLDR
+
+Forna isn’t an npm package, so it can’t be imported directly into React. What worked for me was to download fornac.js and fornac.css from the FornaC repo, put them in public/fornac/, link them in index.html, then in React declare FornaContainer as a global variable and use a div ref with useEffect to initialize it and render the RNA. We use a ref because FornaC directly manipulates the DOM and isn’t a React component, so it needs a real DOM element to render into rather than being imported and used in JSX. That way, the visualization works safely inside a React component
