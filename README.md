@@ -1,46 +1,88 @@
-# Getting Started with Create React App
+# RNA Visualization with React + Fornac
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Setup
 
-## Available Scripts
+1. Install Node.js: `brew install node`
+2. Create React app: `npx create-react-app rna-demo --template typescript`
+3. Go to project: `cd rna-demo`
 
-In the project directory, you can run:
+## Add Fornac Library
 
-### `npm start`
+- Copy prebuilt Fornac assets into public/fornac/: fornac.js, fornac.css from https://github.com/ViennaRNA/fornac/tree/36df3c5d73d2f651c3c3b5266e7d705e5bb1d3d1/dist
+- Add this to public/index.html
+- Place these tags before </body> so the DOM is ready when Fornac initializes (prevents "Forna not defined").
+- Load d3 first so Fornac finds its dependency.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```html
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="%PUBLIC_URL%/fornac/fornac.js"></script>
+<link rel="stylesheet" href="%PUBLIC_URL%/fornac/fornac.css" />
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Create RNA Component
 
-### `npm test`
+Make `src/components/RNAViewer.tsx`:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```tsx
+import { useEffect, useRef } from "react";
 
-### `npm run build`
+declare global {
+  interface Window {
+    fornac: any;
+  }
+}
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+const RNAViewer = ({ sequence, structure }) => {
+  const containerRef = useRef(null);
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  useEffect(() => {
+    if (containerRef.current && window.fornac) {
+      const fornaContainer = new window.fornac.FornaContainer(
+        containerRef.current,
+        {
+          animation: true,
+          allowPanningAndZooming: true,
+          allowEditing: true,
+        }
+      );
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+      fornaContainer.addRNA(structure, { sequence: sequence });
+    }
+  }, [sequence, structure]);
 
-### `npm run eject`
+  return <div ref={containerRef} style={{ width: "700px", height: "200px" }} />;
+};
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Use in App
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Update `src/App.tsx`:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```tsx
+import RNAViewer from "./components/RNAViewer";
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+function App() {
+  const sequence =
+    "CGCUUCAUAUAAUCCUAAUGAUAUGGUUUGGGAGUUUCUACCAAGAGCCUUAAACUCUUGAUUAUGAAGUG";
+  const structure =
+    "...(((((((..((((((.........))))))......).((((((.......))))))..))))))...";
 
-## Learn More
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>RNA Demo</h1>
+      <RNAViewer sequence={sequence} structure={structure} />
+    </div>
+  );
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Common Issues
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **"Forna not defined"** → Check script tags are loaded
+- **"Unmatched base"** → Make sure sequence and structure match exactly
+- **Wrong API** → Use `addRNA(structure, {sequence: sequence})` format
+- **Need d3.js** → Fornac depends on d3.js library
+
+## Run
+
+`npm start` - opens http://localhost:3000
