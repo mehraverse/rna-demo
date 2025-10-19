@@ -10,7 +10,7 @@
 
 - Copy prebuilt Fornac assets into public/fornac/: fornac.js, fornac.css from https://github.com/ViennaRNA/fornac/tree/36df3c5d73d2f651c3c3b5266e7d705e5bb1d3d1/dist
 - Add this to public/index.html
-- Place these tags before </body> so the DOM is ready when Fornac initializes (prevents "Forna not defined").
+- Place these tags before `</body>` so the DOM is ready when Fornac initializes (prevents "Forna not defined").
 - Load d3 first so Fornac finds its dependency.
 
 ```html
